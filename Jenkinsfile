@@ -29,6 +29,18 @@ pipeline {
                 sh 'dotnet publish --configuration Release -o publish'
             }
         }
+        
+        stage('Configure Nginx') {
+            steps {
+                echo "Configuring Nginx"
+                script {
+                    sh """
+                    sudo mv -f ${WORKSPACE}/publish/* /var/www/CMBackend/
+                    sudo systemctl restart nginx
+                    """
+                }
+            }
+        }
         stage('Run App') {
             steps {
                 echo "Starting the application"
@@ -39,20 +51,8 @@ pipeline {
                         kill \$(cat app.pid) || true
                         rm app.pid
                     fi
-                    nohup dotnet ${publishPath}/CourseManager.API.dll --urls=http://0.0.0.0:${APP_PORT} > app.log 2>&1 &
+                    nohup dotnet /var/www/CMBackend//CourseManager.API.dll --urls=http://127.0.0.1:${APP_PORT} > app.log 2>&1 &
                     echo \$! > app.pid
-                    """
-                }
-            }
-        }
-        stage('Configure Nginx') {
-            steps {
-                echo "Configuring Nginx"
-                script {
-                    sh """
-                    sudo rm -rf /var/www/CMBackend/*
-                    sudo cp -r ${WORKSPACE}/publish/* /var/www/CMBackend/
-                    sudo systemctl restart nginx
                     """
                 }
             }
