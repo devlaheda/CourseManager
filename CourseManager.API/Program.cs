@@ -1,4 +1,6 @@
 
+using Microsoft.AspNetCore.HttpOverrides;
+
 namespace CourseManager.API
 {
     public class Program
@@ -10,28 +12,28 @@ namespace CourseManager.API
             // Add services to the container.
 
             builder.Services.AddControllers();
-
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-
             var app = builder.Build();
-
-            app.MapGet("/", () => "The App is runing");
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
+            app.MapGet("/", () => "The App is runing");
+            if (!app.Environment.IsDevelopment())
+            {
+                app.UseHttpsRedirection();
+            }
+            // Configure the HTTP request pipeline.
+            //if (app.Environment.IsDevelopment())
+            //{
                 app.UseSwagger();
                 app.UseSwaggerUI();
-            }
-
+            //}
             app.UseHttpsRedirection();
-
             app.UseAuthorization();
-
-
             app.MapControllers();
-
             app.Run();
         }
     }

@@ -1,25 +1,53 @@
 pipeline {
     agent any
+    environment {
+        BRANCH = "${env.BRANCH_NAME}" // Use Jenkins' branch environment variable
+    }
     stages {
+        stage('Checkout') {
+            steps {
+                echo "Pulling branch: ${BRANCH}"
+                checkout scm // Default source control management configuration
+            }
+        }
         stage('Restore') {
             steps {
-                sh 'dotnet --version'
+                echo "Restoring .NET dependencies"
+                sh 'dotnet restore'
             }
         }
         stage('Build') {
             steps {
-                sh 'dotnet --version'
-            }
-        }
-        stage('Test') {
-            steps {
-                sh 'dotnet --version'
+                echo "Building the project"
+                sh 'dotnet build --configuration Release'
             }
         }
         stage('Publish') {
             steps {
-                sh 'dotnet --version'
+                echo "Publishing the application"
+                sh 'dotnet publish --configuration Release -o publish'
             }
+        }
+        stage('Deploy') {
+            steps {
+                echo "Deploying to Nginx server"
+                script {
+                    def publishPath = "${WORKSPACE}/publish"
+                    sh """
+                    sudo rm -rf /var/www/CMBackend/* &&
+                    sudo cp -r ${publishPath}/* /var/www/CMBackend/ &&
+                    sudo systemctl restart nginx
+                    """
+                }
+            }
+        }
+    }
+    post {
+        success {
+            echo "Build and deployment successful!"
+        }
+        failure {
+            echo "Build or deployment failed."
         }
     }
 }
