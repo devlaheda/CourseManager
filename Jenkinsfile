@@ -26,7 +26,7 @@ pipeline {
         stage('Publish') {
             steps {
                 echo "Publishing the application"
-                sh 'dotnet publish --configuration Release -o publish'
+                sh 'dotnet publish --configuration Release --property:PublishDir=./publish'
             }
         }
         
@@ -35,8 +35,7 @@ pipeline {
                 echo "Configuring Nginx"
                 script {
                     sh """
-                    sudo mv -f ${WORKSPACE}/publish/* /var/www/CMBackend/
-                    sudo systemctl restart nginx
+                    mv -f ${WORKSPACE}/publish/* /var/www/CMBackend/
                     """
                 }
             }
@@ -47,12 +46,12 @@ pipeline {
                 script {
                     def publishPath = "${WORKSPACE}/publish"
                     sh """
-                    if [ -f app.pid ]; then
-                        kill \$(cat app.pid) || true
-                        rm app.pid
+                    if [ -f ~/app.pid ]; then
+                        kill \$(cat ~/app.pid) || true
+                        rm ~/app.pid
                     fi
-                    nohup dotnet /var/www/CMBackend//CourseManager.API.dll --urls=http://127.0.0.1:${APP_PORT} > app.log 2>&1 &
-                    echo \$! > app.pid
+                    nohup dotnet /var/www/CMBackend//CourseManager.API.dll --urls=http://127.0.0.1:${APP_PORT} > ~/app.log 2>&1 &
+                    echo \$! > ~/app.pid
                     """
                 }
             }
