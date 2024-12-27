@@ -26,7 +26,7 @@ pipeline {
         stage('Publish') {
             steps {
                 echo "Publishing the application"
-                sh 'dotnet publish --configuration Release --property:PublishDir=./publish'
+                sh 'dotnet publish --configuration Release --property:PublishDir=${WORKSPACE}/publish/
             }
         }
         
