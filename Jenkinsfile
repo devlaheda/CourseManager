@@ -2,6 +2,7 @@ pipeline {
     agent any
     environment {
         BRANCH = "${env.BRANCH_NAME}" // Use Jenkins' branch environment variable
+        APP_PORT = "5000" // Define the port for the application to run
     }
     stages {
         stage('Checkout') {
@@ -28,14 +29,29 @@ pipeline {
                 sh 'dotnet publish --configuration Release -o publish'
             }
         }
-        stage('Deploy') {
+        stage('Run App') {
             steps {
-                echo "Deploying to Nginx server"
+                echo "Starting the application"
                 script {
                     def publishPath = "${WORKSPACE}/publish"
                     sh """
-                    sudo rm -rf /var/www/CMBackend/* &&
-                    sudo cp -r ${publishPath}/* /var/www/CMBackend/ &&
+                    if [ -f app.pid ]; then
+                        kill \$(cat app.pid) || true
+                        rm app.pid
+                    fi
+                    nohup dotnet ${publishPath}/CourseManager.API.dll --urls=http://0.0.0.0:${APP_PORT} > app.log 2>&1 &
+                    echo \$! > app.pid
+                    """
+                }
+            }
+        }
+        stage('Configure Nginx') {
+            steps {
+                echo "Configuring Nginx"
+                script {
+                    sh """
+                    sudo rm -rf /var/www/CMBackend/*
+                    sudo cp -r ${WORKSPACE}/publish/* /var/www/CMBackend/
                     sudo systemctl restart nginx
                     """
                 }
@@ -44,10 +60,10 @@ pipeline {
     }
     post {
         success {
-            echo "Build and deployment successful!"
+            echo "Build, deployment, and application start were successful!"
         }
         failure {
-            echo "Build or deployment failed."
+            echo "Build, deployment, or application start failed."
         }
     }
 }
