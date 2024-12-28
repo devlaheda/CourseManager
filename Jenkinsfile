@@ -26,7 +26,10 @@ pipeline {
         stage('Publish') {
             steps {
                 echo "Publishing the application"
-                sh 'dotnet publish --configuration Release --property:PublishDir=${WORKSPACE}/publish/'
+                sh """
+                rm -rf /var/www/CMBackend/ &
+                dotnet publish --configuration Release --property:PublishDir=${WORKSPACE}/publish/
+                """
             }
         }
         
