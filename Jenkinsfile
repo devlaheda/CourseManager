@@ -43,21 +43,6 @@ pipeline {
                 }
             }
         }
-        stage('Run App') {
-            steps {
-                echo "Starting the application"
-                script {
-                    def publishPath = "${WORKSPACE}/publish"
-                    sh """
-                    if [ -f ~/app.pid ]; then
-                        kill \$(cat ~/app.pid) || true
-                        rm ~/app.pid
-                    fi
-                    dotnet /var/www/CMBackend/CourseManager.API.dll  > ~/app.log 2>&1 & echo \$! > ~/app.pid
-                    """
-                }
-            }
-        }
     }
     post {
         success {
