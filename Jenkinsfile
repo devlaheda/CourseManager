@@ -53,8 +53,7 @@ pipeline {
                         kill \$(cat ~/app.pid) || true
                         rm ~/app.pid
                     fi
-                    nohup dotnet /var/www/CMBackend//CourseManager.API.dll --urls=http://127.0.0.1:${APP_PORT} > ~/app.log 2>&1 &
-                    echo \$! > ~/app.pid
+                    dotnet /var/www/CMBackend/CourseManager.API.dll  > ~/app.log 2>&1 & echo \$! > ~/app.pid
                     """
                 }
             }
