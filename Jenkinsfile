@@ -47,6 +47,7 @@ pipeline {
     post {
         success {
             echo "Build, deployment, and application start were successful!"
+            sh 'systemctl restart kestrel-CMBackend.service'
         }
         failure {
             echo "Build, deployment, or application start failed."
