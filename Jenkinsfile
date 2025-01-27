@@ -34,10 +34,10 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    withCredentials([string(credentialsId: '9ff08a91-a5de-490e-87d5-8af384719822', variable: 'SONAR_TOKEN')]) {
+                    withCredentials([string(credentialsId: 'CMBackEndSec', variable: 'SONAR_TOKEN')]) {
                         sh '''
-                             ~/.dotnet/tools/dotnet-sonarscanner begin /k:"CMBack" \
-                                /d:sonar.host.url="http://lab.local:9000" \
+                             ~/.dotnet/tools/dotnet-sonarscanner begin /k:"CMBackEnd" \
+                                /d:sonar.host.url="http://localhost:9000" \
                                 /d:sonar.branch.name="${BRANCH}" \
                                 /d:sonar.token="${SONAR_TOKEN}"
                             dotnet build
