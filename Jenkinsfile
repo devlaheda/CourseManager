@@ -36,12 +36,13 @@ pipeline {
                 withSonarQubeEnv('SonarQube') {
                     withCredentials([string(credentialsId: '9ff08a91-a5de-490e-87d5-8af384719822', variable: 'SONAR_TOKEN')]) {
                         sh '''
-                            dotnet sonarscanner begin /k:"CMBack" \
+                            dotnet sonarscanner --version
+                             ~/.dotnet/tools/dotnet-sonarscanner begin /k:"CMBack" \
                                 /d:sonar.host.url="${SONARQUBE_URL}" \
                                 /d:sonar.branch.name="${BRANCH}" \
                                 /d:sonar.token="${SONAR_TOKEN}"
                             dotnet build
-                            dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}"
+                             ~/.dotnet/tools/dotnet-sonarscanner end /d:sonar.token="${SONAR_TOKEN}"
                         '''
                     }
                 }
