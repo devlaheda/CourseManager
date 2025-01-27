@@ -27,17 +27,33 @@ pipeline {
             steps {
                 echo "Publishing the application"
                 sh """
-                rm -rf /var/www/CMBackend/ &
                 dotnet publish --configuration Release --property:PublishDir=${WORKSPACE}/publish/
                 """
             }
         }
-        
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    withCredentials([string(credentialsId: '9ff08a91-a5de-490e-87d5-8af384719822', variable: 'SONAR_TOKEN')]) {
+                        sh '''
+                            dotnet tool install --global dotnet-sonarscanner
+                            dotnet sonarscanner begin /k:"CMBack" \
+                                /d:sonar.host.url="${SONARQUBE_URL}" \
+                                /d:sonar.branch.name="${BRANCH}" \
+                                /d:sonar.token="${SONAR_TOKEN}"
+                            dotnet build
+                            dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}"
+                        '''
+                    }
+                }
+            }
+        }        
         stage('Configure Nginx') {
             steps {
                 echo "Configuring Nginx"
                 script {
-                    sh """
+                    sh """                    
+                    rm -rf /var/www/CMBackend/ &
                     mv -f ${WORKSPACE}/publish/* /var/www/CMBackend/
                     """
                 }
