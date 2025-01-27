@@ -36,7 +36,6 @@ pipeline {
                 withSonarQubeEnv('SonarQube') {
                     withCredentials([string(credentialsId: '9ff08a91-a5de-490e-87d5-8af384719822', variable: 'SONAR_TOKEN')]) {
                         sh '''
-                            dotnet tool install --global dotnet-sonarscanner
                             dotnet sonarscanner begin /k:"CMBack" \
                                 /d:sonar.host.url="${SONARQUBE_URL}" \
                                 /d:sonar.branch.name="${BRANCH}" \
