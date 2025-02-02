@@ -37,7 +37,7 @@ pipeline {
                     withCredentials([string(credentialsId: 'CMBackEndSec', variable: 'SONAR_TOKEN')]) {
                         sh '''
                              ~/.dotnet/tools/dotnet-sonarscanner begin /k:"CMBackEnd" \
-                                /d:sonar.host.url="${SONARQUBE_URL}" \
+                                /d:sonar.host.url="http://localhost:9000" \
                                  /d:sonar.branch.name="${branchName}" \
                                 /d:sonar.token="${SONAR_TOKEN}"
                             dotnet build
