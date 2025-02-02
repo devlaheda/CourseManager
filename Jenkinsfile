@@ -26,23 +26,17 @@ pipeline {
         stage('Publish') {
             steps {
                 echo "Publishing the application"
-                sh """
-                dotnet publish --configuration Release --property:PublishDir=${WORKSPACE}/publish/
-                """
+                sh("dotnet publish --configuration Release --property:PublishDir=${WORKSPACE}/publish/")
+             
             }
         }
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
                     withCredentials([string(credentialsId: 'CMBackEndSec', variable: 'SONAR_TOKEN')]) {
-                        sh """
-                             ~/.dotnet/tools/dotnet-sonarscanner begin /k:"CMBackEnd" \
-                                /d:sonar.host.url="${SONAR_HOST_URL}" \
-                                 /d:sonar.branch.name="${BRANCH}" \
-                                /d:sonar.token="${SONAR_TOKEN}"
-                            dotnet build
-                             ~/.dotnet/tools/dotnet-sonarscanner end /d:sonar.token="${SONAR_TOKEN}"
-                        """
+                        sh('~/.dotnet/tools/dotnet-sonarscanner begin /k:"CMBackEnd"  /d:sonar.host.url="${SONAR_HOST_URL}" /d:sonar.branch.name="${BRANCH}" /d:sonar.token="${SONAR_TOKEN}"')
+                        sh('dotnet build')
+                        sh(' ~/.dotnet/tools/dotnet-sonarscanner end /d:sonar.token="${SONAR_TOKEN}"')
                     }
                 }
             }
