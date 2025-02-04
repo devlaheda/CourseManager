@@ -47,6 +47,10 @@ pipeline {
             }
         }        
         stage('Container Hosting') {
+            when { 
+                    // Only execute this stage for the 'dev' branch
+                    branch 'dev' 
+                }
             steps {
                 echo "Configuring Nginx"
                 script {
@@ -58,6 +62,9 @@ pipeline {
             }
         }
         stage('Verify') {
+            when { 
+                    branch 'dev' 
+                }
           steps {
             // Check if the container is running
             sh 'docker ps --filter "name=aspnet-app" --format "{{.Status}}" | grep Up'    
