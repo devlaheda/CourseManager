@@ -23,6 +23,11 @@ pipeline {
                 sh 'dotnet build --configuration Release'
             }
         }
+         stage('Test') {
+            steps {
+                echo "NO test for the moment"
+            }
+        }
         stage('Publish') {
             steps {
                 echo "Publishing the application"
@@ -41,22 +46,28 @@ pipeline {
                 }
             }
         }        
-        stage('Configure Nginx') {
+        stage('Container Hosting') {
             steps {
                 echo "Configuring Nginx"
                 script {
-                    sh """                    
-                    rm -rf /var/www/CMBackend/ &
-                    mv -f ${WORKSPACE}/publish/* /var/www/CMBackend/
-                    """
+                    sh("docker build  -f .\CourseManager.API\Dockerfile -t aspnet-app .")
+                    sh("docker stop aspnet-app || true")
+                    sh("docker rm aspnet-app || true")
+                    sh("docker run -d   --name aspnet-app   -p 5000:8080  --restart unless-stopped  aspnet-app")                    
                 }
             }
         }
+        stage('Verify') {
+          steps {
+            // Check if the container is running
+            sh 'docker ps --filter "name=aspnet-app" --format "{{.Status}}" | grep Up'    
+            // Optional: Smoke test the endpoint
+            sh 'curl -I http://localhost:5000'
+          }
     }
     post {
         success {
             echo "Build, deployment, and application start were successful!"
-            sh 'sudo systemctl restart kestrel-CMBackend.service' // this is not good practice but i need it in my home lab
         }
         failure {
             echo "Build, deployment, or application start failed."
