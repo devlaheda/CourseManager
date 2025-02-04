@@ -20,7 +20,7 @@ namespace CourseManager.API
             {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
             });
-            app.MapGet("/", () => "The App is runing with a second update ");
+            app.MapGet("/", () => "The App is runing with a second update from docker");
             if (!app.Environment.IsDevelopment())
             {
                 app.UseHttpsRedirection();
