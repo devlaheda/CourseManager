@@ -64,6 +64,7 @@ pipeline {
             // Optional: Smoke test the endpoint
             sh 'curl -I http://localhost:5000'
           }
+       }
     }
     post {
         success {
