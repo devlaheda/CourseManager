@@ -50,7 +50,7 @@ pipeline {
             steps {
                 echo "Configuring Nginx"
                 script {
-                    sh("docker build  -f .\CourseManager.API\Dockerfile -t aspnet-app .")
+                    sh("docker build  -f ./CourseManager.API/Dockerfile -t aspnet-app .")
                     sh("docker stop aspnet-app || true")
                     sh("docker rm aspnet-app || true")
                     sh("docker run -d   --name aspnet-app   -p 5000:8080  --restart unless-stopped  aspnet-app")                    
