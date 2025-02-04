@@ -73,5 +73,9 @@ pipeline {
         failure {
             echo "Build, deployment, or application start failed."
         }
+        cleanup {
+			echo "Cleaning up the workspace"
+			cleanWs()
+		}
     }
 }
